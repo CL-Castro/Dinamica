@@ -81,7 +81,7 @@ public class Main {
         }
         double[] yp = {10,-3,3};
         double ultimo = y[y.length-1];
-        for(int i = 0;i<7;i++){
+        for(int i = 0;i<100;i++){
             double ypron = gammaDeVeras[0][0] * yp[0] + gammaDeVeras[1][0] * yp[1] + gammaDeVeras[2][0] * yp[2];
             yp[2] = yp[1];
             yp[1] = yp[0];
@@ -97,7 +97,7 @@ public class Main {
             else
                 System.out.println("La variable Beta"+(i+1)+" NO es explicativa");
         }*/
-        System.out.println( " Y = [y1 y2 y3]");
+        /*System.out.println( " Y = [y1 y2 y3]");
         System.out.println( " X = [x1 x2 x3 x4 x5]");
         double[][] x = {{10,3.06,1.34,8.48,28},{15,3.19,1.44,9.16,35},{20,3.3,1.54,9.9,37},{25,3.4,1.71,11.02,36},{34,3.48,1.89,11.64,29}
         ,{27,3.6,1.99,12.73,47},{28,3.68,2.22,13.88,50},{40,3.72,2.43,14.5,35},{37,3.92,2.43,15.47,33},{36,4.15,2.31,16.61,40},
@@ -184,7 +184,7 @@ public class Main {
         double[][] mody6 = findB(xmod6,ymod6);
         System.out.println("Modelo X4");
         ShowMatrix(mody6);
-
+*/
 
     }
 
