@@ -56,7 +56,7 @@ public class Main {
                 System.out.println("La variable Beta"+(i+1)+" NO es explicativa");
         }*/
         // MODELO AR(3) COMPLETO
-        double [] y = {20,27,22,24,28,33,40,42,48,52,50,47,58,67,77,73,72,80,83,80,90};
+        /*double [] y = {20,27,22,24,28,33,40,42,48,52,50,47,58,67,77,73,72,80,83,80,90};
         // Delta ytest = gamma est y t-1
         double [][] yt = {{4},{5},{7},{2},{6},{4},{-2},{-3},{11},{9},{10},{-4},{-1},{8},{3},{-3},{10}};
         double [][] ytmenos = {{2,-5,7},{4,2,-5},{5,4,2},{7,5,4},{2,7,5},{6,2,7},{4,6,2},{-2,4,6},{-3,-2,4},{11,-3,-2},{9,11,-3},{10,9,11},{-4,10,9},{-1,-4,10},{8,-1,-4},{3,8,-1},{-3,3,8}};
@@ -88,7 +88,7 @@ public class Main {
             yp[0] = ypron;
             System.out.println("y"+(22+i)+" = "+ (ultimo+ypron));
             ultimo = (ultimo+ypron);
-        }
+        }*/
         //FINAL MODELO AR(3), TODO: INTEGRAR LA SERIE
         //boolean [] est = verify(gamma, Var, C, 2.145);
         /*for(int i=0;i<est.length;i++){
@@ -97,7 +97,7 @@ public class Main {
             else
                 System.out.println("La variable Beta"+(i+1)+" NO es explicativa");
         }*/
-        /*System.out.println( " Y = [y1 y2 y3]");
+        System.out.println( " Y = [y1 y2 y3]");
         System.out.println( " X = [x1 x2 x3 x4 x5]");
         double[][] x = {{10,3.06,1.34,8.48,28},{15,3.19,1.44,9.16,35},{20,3.3,1.54,9.9,37},{25,3.4,1.71,11.02,36},{34,3.48,1.89,11.64,29}
         ,{27,3.6,1.99,12.73,47},{28,3.68,2.22,13.88,50},{40,3.72,2.43,14.5,35},{37,3.92,2.43,15.47,33},{36,4.15,2.31,16.61,40},
@@ -184,8 +184,6 @@ public class Main {
         double[][] mody6 = findB(xmod6,ymod6);
         System.out.println("Modelo X4");
         ShowMatrix(mody6);
-*/
-
     }
 
     public static double[][] findB(double[][] x, double[][]y){

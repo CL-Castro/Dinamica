@@ -42,32 +42,34 @@ public class NumerosAleatorios {
             F = Math.random();
             numWeib[i] = beta * Math.pow(Math.log(F),1/alfa);
             System.out.println(numWeib[i]);
-        }*//*
+        }*/
         double [] numDiscreto = new double [100];
         System.out.println("Sigma");
         double sigma = in.nextDouble();
         System.out.println("Promedio");
         double prom = in.nextDouble();
         double sumatoria;
-        double n = 1000;
+        double n = 100;
         double index;
         double deltax = 6 * sigma / n;
+        double dx = deltax;
         for(int i=0;i<numDiscreto.length;i++)
         {
-            F = Math.random();
+            F[i] = Math.random();
             sumatoria = 0;
             index = 1;
-            while(sumatoria < F)
+            while(sumatoria < F[i])
             {
+                dx = index * deltax;
                 sumatoria += (1/Math.sqrt(2*Math.PI*Math.pow(sigma,2)))*
-                        (Math.pow(Math.E,-1*Math.pow((index*deltax - prom)/sigma,2)))*deltax;
+                        (Math.exp(-1*Math.pow((dx - prom)/sigma,2)))*dx;
                 index += 1.0;
-                //System.out.println(F + " > "+sumatoria);
             }
-            numDiscreto[i] = sumatoria;
+            //System.out.println(F[i] + " < "+sumatoria);
+            numDiscreto[i] = dx;
             System.out.println(numDiscreto[i]);
-        }*/
-        double [] numLogN = new double [100];
+        }
+        /*double [] numLogN = new double [100];
         System.out.println("Varianza");
         double sigma = in.nextDouble();
         System.out.println("Media");
@@ -116,8 +118,8 @@ public class NumerosAleatorios {
             }
             numBeta[i] = dx;
             System.out.println(numBeta[i]);
-        }*/
-        GenerarGrafica(numLogN,F,"Funcion LogNormal");
+        }
+        GenerarGrafica(numLogN,F,"Funcion LogNormal");*/
     }
     static double logGamma(double x) {
         double tmp = (x - 0.5) * Math.log(x + 4.5) - (x + 4.5);

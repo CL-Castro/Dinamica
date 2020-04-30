@@ -1,30 +1,55 @@
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class PronosticoStock {
+import static com.sun.javafx.fxml.expression.Expression.add;
+
+public class PronosticoStock extends JFrame{
+    static int colPron = 7;
+    static int colx = 4;
+    static int numpron = 10;
+    static String pais = "Bolivia";
     public static void main(String[] args) throws IOException {
-        String pathToCsv = "C:\\Castro\\ING. Sistemas\\7MO SEMESTRE\\Modelado\\Google.csv";
+        String pathToCsv = "C:\\Castro\\ING. Sistemas\\7MO SEMESTRE\\Modelado\\Corona.csv";
+        Ar5(pathToCsv);
+        Ar3(pathToCsv);
+    }
+
+    public static void Ar3(String pathToCsv) throws IOException
+    {
         String row=null;
         ArrayList<String[]> datos = new ArrayList<>();
         BufferedReader csvReader = new BufferedReader(new FileReader(pathToCsv));
         while ((row = csvReader.readLine()) != null) {
             String[] data = row.split(",");
-            datos.add(data);
-            System.out.println(data[0]);
+            //datos.add(data);
+            if(data[1].compareToIgnoreCase(pais)==0)
+            {
+                datos.add(data);
+            }
         }
+        System.out.println(" NUMERO DE DATOS : " + datos.size());
         csvReader.close();
-        double [][] dy = diferencial(datos);
+        double [][] dy = diferencial3(datos);
         System.out.println("waso");
-        double [][] yt = desintegrar(datos);
+        double [][] yt = desintegrar3(datos);
         // yt = gamma * ytmenos
         double[][] gamma = findB(yt,dy);
         System.out.println("RESULTADOS a ->");
@@ -39,13 +64,15 @@ public class PronosticoStock {
         ArrayList<Double> y = new ArrayList<>();
         ArrayList<String> fechas = new ArrayList<>();
         for (String[] val:datos
-             ) {
-            y.add(Double.parseDouble(val[1]));
-            fechas.add(val[0]);
+        ) {
+            y.add(Double.parseDouble(val[colPron]));
+            fechas.add(val[colx]);
         }
         double[] yp = {dy[dy.length-1][0],dy[dy.length-2][0],dy[dy.length-3][0]};
         double ultimo;
-        for(int i = 0;i<1000;i++){
+        double [] ywaso = new double[numpron];
+        String [] xwaso = new String[numpron];
+        for(int i = 0;i<numpron;i++){
             double ypron = gammaDeVeras[0][0] * yp[0] + gammaDeVeras[1][0] * yp[1] + gammaDeVeras[2][0] * yp[2];
             yp[2] = yp[1];
             yp[1] = yp[0];
@@ -53,53 +80,224 @@ public class PronosticoStock {
             ultimo = y.get(y.size()-1);
             y.add(ultimo+ypron);
             fechas.add("Pronosticado"+(i+1));
+            ywaso[i] = ultimo+ypron;
+            xwaso[i] = String.valueOf(i+1);
         }
-        double[] axisY = new double[y.size()];
-        String[] axisX = new String[fechas.size()];
-        for (int i=0;i<y.size();i++){
+        double[] axisY = new double[y.size()-numpron];
+        String[] axisX = new String[fechas.size()-numpron];
+        for (int i=0;i<y.size()-numpron;i++){
             System.out.println(y.get(i));
             axisY[i] = y.get(i);
             axisX[i] = fechas.get(i);
         }
-        GenerarGrafica(axisY,axisX,"AR3");
+        new PronosticoStock(axisY,axisX,ywaso,xwaso,"AR3").setVisible(true);
+    }
+    public static void Ar5(String pathToCsv) throws IOException {
+        String row=null;
+        ArrayList<String[]> datos = new ArrayList<>();
+        BufferedReader csvReader = new BufferedReader(new FileReader(pathToCsv));
+        while ((row = csvReader.readLine()) != null) {
+            String[] data = row.split(",");
+            //datos.add(data);
+            if(data[1].compareToIgnoreCase(pais)==0)
+            {
+                datos.add(data);
+                //System.out.println(data[1]+" ->"+data[5]);
+            }
+        }
+        csvReader.close();
+        double [][] dy = diferencial5(datos);
+        double [][] yt = desintegrar5(datos);
+        ShowMatrix(dy);
+        ShowMatrix(yt);
+        // yt = gamma * ytmenos
+        double[][] gamma = findB(yt,dy);
+        System.out.println("RESULTADOS a ->");
+        for (String[] val:datos
+             ) {
+            System.out.println(val[1]+" Contagios: "+val[5]+" Muertes: "+val[6]+" Recuperados: "+val[7]);
+        }
+        // Yule Walker
+        double[][] matrixA = {{gamma[1][0]-1,gamma[2][0],gamma[3][0],gamma[4][0],0},{gamma[0][0]+gamma[2][0],gamma[3][0]-1,gamma[4][0],0,0}
+                ,{gamma[1][0]+gamma[3][0],gamma[0][0]+gamma[4][0],-1,0,0},{gamma[2][0]+gamma[4][0],gamma[1][0],gamma[0][0],-1,0},{gamma[3][0],gamma[2][0],gamma[1][0],gamma[0][0],-1}};
+        double[][] matrixARes = {{-gamma[0][0]},{-gamma[1][0]},{-gamma[2][0]},{-gamma[3][0]},{-gamma[4][0]}};
+        double[][] gammaDeVeras = findB(matrixA,matrixARes);
+        System.out.println("RESULTADO GAMMAS MODELO AR5");
+        ShowMatrix(gammaDeVeras);
+        System.out.println("Y");
+        ArrayList<Double> y = new ArrayList<>();
+        ArrayList<String> fechas = new ArrayList<>();
+        for (String[] val:datos
+        ) {
+            y.add(Double.parseDouble(val[colPron]));
+            fechas.add(val[colx]);
+        }
+        double[] yp = {dy[dy.length-1][0],dy[dy.length-2][0],dy[dy.length-3][0],dy[dy.length-4][0],dy[dy.length-5][0]};
+        double ultimo;
+        double [] ywaso = new double[numpron];
+        String [] xwaso = new String[numpron];
+        for(int i = 0;i<numpron;i++){
+            double ypron = gammaDeVeras[0][0] * yp[0] + gammaDeVeras[1][0] * yp[1] + gammaDeVeras[2][0] * yp[2]
+                    + gammaDeVeras[3][0] * yp[3] + gammaDeVeras[4][0] * yp[4];
+            yp[4] = yp[3];
+            yp[3] = yp[2];
+            yp[2] = yp[1];
+            yp[1] = yp[0];
+            yp[0] = ypron;
+            ultimo = y.get(y.size()-1);
+            y.add(ultimo+ypron);
+            System.out.println("Pron = "+ypron+" Resultado = " + (ultimo+ypron));
+            fechas.add("Pronosticado"+(i+1));
+            ywaso[i] = ultimo+ypron;
+            xwaso[i] = String.valueOf(i+1);
+        }
+        double[] axisY = new double[y.size()-numpron];
+        String[] axisX = new String[fechas.size()-numpron];
+        for (int i=0;i<y.size()-numpron;i++){
+            axisY[i] = y.get(i);
+            axisX[i] = fechas.get(i);
+            System.out.println(axisY[i] + axisX[i]);
+        }
+        new PronosticoStock(axisY,axisX,ywaso,xwaso,"AR5").setVisible(true);
     }
 
-    public static void GenerarGrafica(double numeros[],String numero[],String titulo){
-        JFreeChart Grafica;
-        DefaultCategoryDataset Datos = new DefaultCategoryDataset();
-        for (int i=0;i<numeros.length;i++){
-            Datos.addValue(numeros[i],"Numero",String.valueOf(numero[i]));
+    public PronosticoStock(double numeros[],String numero[],double yp[],String xp[],String titulo) {   // the constructor will contain the panel of a certain size and the close operations
+        super("XY Line Chart Example with JFreechart"); // calls the super class constructor
+
+        JPanel chartPanel = createChartPanel(numeros,numero,yp,xp,titulo);
+        add(chartPanel, BorderLayout.CENTER);
+
+        setSize(640, 480);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+    }
+
+    private JPanel createChartPanel(double numeros[],String numero[],double yp[],String xp[],String titulo) { // this method will create the chart panel containin the graph
+        String chartTitle = titulo;
+        String xAxisLabel = "X";
+        String yAxisLabel = "Y";
+
+        XYDataset dataset = createDataset(numeros,numero,yp,xp,titulo);
+
+        JFreeChart chart = ChartFactory.createXYLineChart(chartTitle,
+                xAxisLabel, yAxisLabel, dataset);
+
+        customizeChart(chart);
+
+        // saves the chart as an image files
+        File imageFile = new File("XYLineChart.png");
+        int width = 640;
+        int height = 480;
+
+        try {
+            ChartUtilities.saveChartAsPNG(imageFile, chart, width, height);
+        } catch (IOException ex) {
+            System.err.println(ex);
         }
 
-        Grafica = ChartFactory.createLineChart(titulo,"ind","Numeros",Datos, PlotOrientation.VERTICAL,true,true,false);
-        ChartPanel Panel = new ChartPanel(Grafica);
-        JFrame Ventana = new JFrame("Graficas");
-        Ventana.getContentPane().add(Panel);
-        Ventana.pack();
-        Ventana.setVisible(true);
-        Ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        return new ChartPanel(chart);
+    }
+    private XYDataset createDataset(double numeros[],String numero[],double yp[],String xp[],String titulo) {    // this method creates the data as time seris
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        XYSeries series1 = new XYSeries("Valor real");
+        XYSeries series2 = new XYSeries("Pronosticado");
+
+        int index = 0;
+        for (int i=0;i<numeros.length;i++){
+            series1.add(i,numeros[i]);
+            System.out.println(numeros[i]);
+            index=i;
+        }
+        series2.add(index,numeros[index]);
+        for (int i=0;i<yp.length;i++){
+            series2.add(index+Double.parseDouble(xp[i]),yp[i]);
+        }
+
+        dataset.addSeries(series1);
+        dataset.addSeries(series2);
+
+        return dataset;
     }
 
-    public static double[][] diferencial(ArrayList<String[]> stockValue)
+    private void customizeChart(JFreeChart chart) {   // here we make some customization
+        XYPlot plot = chart.getXYPlot();
+        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+
+        // sets paint color for each series
+        renderer.setSeriesPaint(0, Color.RED);
+        renderer.setSeriesPaint(1, Color.GREEN);
+        renderer.setSeriesPaint(2, Color.YELLOW);
+
+        // sets thickness for series (using strokes)
+        renderer.setSeriesStroke(0, new BasicStroke(1.0f));
+        renderer.setSeriesStroke(1, new BasicStroke(1.0f));
+        renderer.setSeriesStroke(2, new BasicStroke(2.0f));
+
+        // sets paint color for plot outlines
+        plot.setOutlinePaint(Color.BLUE);
+        plot.setOutlineStroke(new BasicStroke(1.0f));
+
+        // sets renderer for lines
+        plot.setRenderer(renderer);
+
+        // sets plot background
+        plot.setBackgroundPaint(Color.DARK_GRAY);
+
+        // sets paint color for the grid lines
+        plot.setRangeGridlinesVisible(true);
+        plot.setRangeGridlinePaint(Color.BLACK);
+
+        plot.setDomainGridlinesVisible(true);
+        plot.setDomainGridlinePaint(Color.BLACK);
+
+    }
+
+    public static double[][] diferencial3(ArrayList<String[]> stockValue)
     {
         double [][] yt = new double[stockValue.size()-4][1];
         int index = 4;
         for (int i = 0;i<stockValue.size()-4;i++)
         {
-            yt[i][0] = Double.parseDouble(stockValue.get(index)[1]) - Double.parseDouble(stockValue.get(index-1)[1]);
+            yt[i][0] = Double.parseDouble(stockValue.get(index)[colPron]) - Double.parseDouble(stockValue.get(index-1)[colPron]);
             index++;
         }
         return yt;
     }
-    public static double[][] desintegrar(ArrayList<String[]> stockValue)
+    public static double[][] desintegrar3(ArrayList<String[]> stockValue)
     {
         double [][] yt = new double[stockValue.size()-4][3];
         int index = 4;
         for (int i = 0;i<stockValue.size()-4;i++)
         {
-            yt[i][0] = Double.parseDouble(stockValue.get(index-1)[1]) - Double.parseDouble(stockValue.get(index-2)[1]);
-            yt[i][1] = Double.parseDouble(stockValue.get(index-2)[1]) - Double.parseDouble(stockValue.get(index-3)[1]);
-            yt[i][2] = Double.parseDouble(stockValue.get(index-3)[1]) - Double.parseDouble(stockValue.get(index-4)[1]);
+            yt[i][0] = Double.parseDouble(stockValue.get(index-1)[colPron]) - Double.parseDouble(stockValue.get(index-2)[colPron]);
+            yt[i][1] = Double.parseDouble(stockValue.get(index-2)[colPron]) - Double.parseDouble(stockValue.get(index-3)[colPron]);
+            yt[i][2] = Double.parseDouble(stockValue.get(index-3)[colPron]) - Double.parseDouble(stockValue.get(index-4)[colPron]);
+            index++;
+        }
+        return yt;
+    }
+    public static double[][] diferencial5(ArrayList<String[]> stockValue)
+    {
+        double [][] yt = new double[stockValue.size()-6][1];
+        int index = 6;
+        for (int i = 0;i<stockValue.size()-6;i++)
+        {
+            yt[i][0] = Double.parseDouble(stockValue.get(index)[colPron]) - Double.parseDouble(stockValue.get(index-1)[colPron]);
+            index++;
+        }
+        return yt;
+    }
+    public static double[][] desintegrar5(ArrayList<String[]> stockValue)
+    {
+        double [][] yt = new double[stockValue.size()-6][5];
+        int index = 6;
+        for (int i = 0;i<stockValue.size()-6;i++)
+        {
+            yt[i][0] = Double.parseDouble(stockValue.get(index-1)[colPron]) - Double.parseDouble(stockValue.get(index-2)[colPron]);
+            yt[i][1] = Double.parseDouble(stockValue.get(index-2)[colPron]) - Double.parseDouble(stockValue.get(index-3)[colPron]);
+            yt[i][2] = Double.parseDouble(stockValue.get(index-3)[colPron]) - Double.parseDouble(stockValue.get(index-4)[colPron]);
+            yt[i][3] = Double.parseDouble(stockValue.get(index-4)[colPron]) - Double.parseDouble(stockValue.get(index-5)[colPron]);
+            yt[i][4] = Double.parseDouble(stockValue.get(index-5)[colPron]) - Double.parseDouble(stockValue.get(index-6)[colPron]);
             index++;
         }
         return yt;
