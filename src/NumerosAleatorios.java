@@ -11,8 +11,8 @@ import java.lang.Math;
 public class NumerosAleatorios {
     public static void main(String [] args){
         Scanner in = new Scanner(System.in);
-        double[] F = new double[100];
-        /*double [] numContinuos = new double [100];
+        double [] F =new double[100];
+        /*int [] numContinuos = new int [100];
         System.out.println("A");
         double a = in.nextDouble();
         System.out.println("B");
@@ -20,20 +20,20 @@ public class NumerosAleatorios {
 
         for(int i=0;i<100;i++){
             F[i] = (Math.random() * 1) + 0;
-            numContinuos[i] = a + F[i] * (b-a);
+            numContinuos[i] =(int) (a + F[i] * (b-a));
             System.out.println(numContinuos[i]);
-        }
-        GenerarGrafica(numContinuos,F,"Numeros Continuos");
+        }*/
+        //GenerarGrafica(numContinuos,F,"Numeros Continuos");
 
         System.out.println("Landa");
         double landa = in.nextDouble();
         double [] numExp = new double [100];
         for(int i=0;i<100;i++){
-            F = (Math.random() * 1/landa) + 0;
-            numExp[i] = landa * Math.log(F);
+            F[i] = (Math.random() * 1/landa) + 0;
+            numExp[i] = landa * Math.log(F[i]);
             System.out.println(numExp[i]);
         }
-        double [] numWeib = new double [100];
+        /*double [] numWeib = new double [100];
         System.out.println("Alfa");
         double alfa = in.nextDouble();
         System.out.println("Beta");
@@ -43,7 +43,7 @@ public class NumerosAleatorios {
             numWeib[i] = beta * Math.pow(Math.log(F),1/alfa);
             System.out.println(numWeib[i]);
         }*/
-        double [] numDiscreto = new double [100];
+        /*double [] numDiscreto = new double [100];
         System.out.println("Sigma");
         double sigma = in.nextDouble();
         System.out.println("Promedio");
@@ -68,7 +68,7 @@ public class NumerosAleatorios {
             //System.out.println(F[i] + " < "+sumatoria);
             numDiscreto[i] = dx;
             System.out.println(numDiscreto[i]);
-        }
+        }*/
         /*double [] numLogN = new double [100];
         System.out.println("Varianza");
         double sigma = in.nextDouble();
