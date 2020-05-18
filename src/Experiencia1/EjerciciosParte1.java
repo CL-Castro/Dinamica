@@ -50,7 +50,7 @@ public class EjerciciosParte1 extends JFrame{
         //Ej7();
         //Ejercicio 8
         //Ej8();
-        //TODO: Ejercicio 9 Imposible
+        //TODO: Ejercicio 9
         //Ej9();
         //Ejercicio 10
         //Ej10();
@@ -65,7 +65,7 @@ public class EjerciciosParte1 extends JFrame{
         //Ej14();
 
         //Ejercicio
-        //Ej15(100,1,0.6,10);
+        Ej15(100,1,0.6,10);
     }
 
     private static void Ej1(int n)
@@ -860,7 +860,7 @@ public class EjerciciosParte1 extends JFrame{
                     inm++;
                 }
                 int caso =(int) (Math.random()*pob-1)+1;
-                if(gente[0]==1)
+                /*if(gente[0]==1)
                 {
                     if(gente[1]<=0)
                     {
@@ -868,7 +868,7 @@ public class EjerciciosParte1 extends JFrame{
                     }else {
                         gente[1]--;
                     }
-                }
+                }*/
                 if(poblacion.get(caso)[0]==1 && gente[0]!=2)
                 {
                     double F = Math.random();
@@ -878,7 +878,7 @@ public class EjerciciosParte1 extends JFrame{
                     }
                 }
             }
-            if(inm == pob || enf == 0)
+            if(/*inm == pob || */enf == pob)
                 inmunidad = true;
             System.out.println("En el periodo: "+ tiempo+" se tiene Enfermos: "+ enf+" Susceptibles: "+sus+" Inmunes: "+inm);
             tiempo++;
