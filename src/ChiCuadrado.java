@@ -4,21 +4,26 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class ChiCuadrado {
     public static void main(String[] args) throws IOException {
-        String pathToCHI = "C:\\Castro\\ING. Sistemas\\7MO SEMESTRE\\Modelado\\practicaautos.csv";
+        String pathToCHI = "C:\\Castro\\ING. Sistemas\\7MO SEMESTRE\\Modelado\\datos.txt";
         BufferedReader bufferedReader = new BufferedReader(new FileReader(pathToCHI));
         ArrayList<double[]> Autos = new ArrayList<>();
+        ArrayList<Double> datos = new ArrayList<>();
         String row;
-        int n = 100;
+        int n = 11;
         for (int i = 0; i < n; i++) {
             Autos.add(new double[] {i,0,0});
         }
         int index = 0;
+        int sum = 0;
         while((row = bufferedReader.readLine()) != null)
         {
+            sum+=Integer.parseInt(row);
             index++;
+            datos.add(Double.parseDouble(row));
             for (double[] auto:Autos
                  ) {
                 if(Integer.parseInt(row) == auto[0])
@@ -47,12 +52,39 @@ public class ChiCuadrado {
         for (int i = 0; i < Autos.size()-1; i++) {
             chi += Math.pow(Autos.get(i)[1]-(Autos.get(i)[2]*index),2) / (Autos.get(i)[2]*index);
         }
+        System.out.println("Media:" + promedio(datos));
+        System.out.println("Varianza: "+varianza(datos));
+        System.out.println("Desviacion: "+Math.sqrt(varianza(datos)));
         System.out.println("Estadistico chi: "+chi);
-        if(chi>113.15)
+        if(chi>692.9809)
             System.out.println("Se acepta H1: Los datos NO siguen una distribucion Poisson");
         else
             System.out.println("Se acepta H0: Los datos siguen una distribucion Poisson");
         bufferedReader.close();
+    }
+
+    private static double varianza( List<Double> data) {
+        double sum=0, ret=0;
+        int n =data.size();
+        double prom = promedio(data);
+        for(int i=0 ; i<data.size(); i++)
+        {
+            double tem=data.get(i)-prom;
+            sum+=Math.pow(tem, 2);
+        }
+
+        ret=Math.sqrt((sum)/n-1);
+        return ret;
+    }
+    private static double promedio( List<Double> data) {
+        double sum=0;
+        int n = data.size();
+        for(int i=0 ; i<data.size(); i++)
+        {
+            sum+=data.get(i);
+        }
+        sum=sum/n;
+        return sum;
     }
 
     private static double factorial (double numero) {

@@ -39,7 +39,7 @@ public class kolmogorovSmirnovNormal extends ApplicationFrame {
             List<Double> data=new ArrayList<Double>();
             DefaultCategoryDataset dataset = new DefaultCategoryDataset( );
             // DATOS
-            String pathToCHI = "C:\\Castro\\ING. Sistemas\\7MO SEMESTRE\\Modelado\\kolmosmirnov.txt";
+            String pathToCHI = "C:\\Castro\\ING. Sistemas\\7MO SEMESTRE\\Modelado\\datos.txt";
             BufferedReader bufferedReader = new BufferedReader(new FileReader(pathToCHI));
             //*
             String row;
@@ -107,6 +107,7 @@ public class kolmogorovSmirnovNormal extends ApplicationFrame {
             double acumf=0;
             double mini=data.get(0);
             double maxks=-1000;
+            int index = 0;
             while(li<=data.get(n-1))
             {
                 double f=getFrecuencia(data,li,ls);
@@ -117,7 +118,8 @@ public class kolmogorovSmirnovNormal extends ApplicationFrame {
                 double d=Math.abs(tf-acumf);
                 System.out.println("\t Frecuencia: "+f +" \tAcumulada: "+acumf+" \tFTeorica: "+tf+" \tProb: "+ hi +" \tDMax: " + d);
                 fprac.add(acumf);
-                fteo.add(tf);
+                fteo.add(f);
+                index++;
                 maxks=Math.max(maxks,d);
                 li=ls;
                 ls+=ancho;

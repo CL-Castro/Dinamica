@@ -22,14 +22,13 @@ import java.util.ArrayList;
 import static com.sun.javafx.fxml.expression.Expression.add;
 
 public class PronosticoStock extends JFrame{
-    static int colPron = 7;
-    static int colx = 4;
-    static int numpron = 10;
-    static String pais = "Bolivia";
+    static int colPron = 3;
+    static int colx = 1;
+    static int numpron = 3;
     public static void main(String[] args) throws IOException {
-        String pathToCsv = "C:\\Castro\\ING. Sistemas\\7MO SEMESTRE\\Modelado\\Corona.csv";
+        String pathToCsv = "C:\\Castro\\ING. Sistemas\\7MO SEMESTRE\\Modelado\\inflacionBolivia.txt";
         Ar5(pathToCsv);
-        Ar3(pathToCsv);
+        //Ar3(pathToCsv);
     }
 
     public static void Ar3(String pathToCsv) throws IOException
@@ -39,11 +38,7 @@ public class PronosticoStock extends JFrame{
         BufferedReader csvReader = new BufferedReader(new FileReader(pathToCsv));
         while ((row = csvReader.readLine()) != null) {
             String[] data = row.split(",");
-            //datos.add(data);
-            if(data[1].compareToIgnoreCase(pais)==0)
-            {
-                datos.add(data);
-            }
+            datos.add(data);
         }
         System.out.println(" NUMERO DE DATOS : " + datos.size());
         csvReader.close();
@@ -79,6 +74,7 @@ public class PronosticoStock extends JFrame{
             yp[0] = ypron;
             ultimo = y.get(y.size()-1);
             y.add(ultimo+ypron);
+            System.out.println("Pron = "+ypron+" Resultado = " + (ultimo+ypron));
             fechas.add("Pronosticado"+(i+1));
             ywaso[i] = ultimo+ypron;
             xwaso[i] = String.valueOf(i+1);
@@ -98,14 +94,11 @@ public class PronosticoStock extends JFrame{
         BufferedReader csvReader = new BufferedReader(new FileReader(pathToCsv));
         while ((row = csvReader.readLine()) != null) {
             String[] data = row.split(",");
-            //datos.add(data);
-            if(data[1].compareToIgnoreCase(pais)==0)
-            {
-                datos.add(data);
-                //System.out.println(data[1]+" ->"+data[5]);
-            }
+            datos.add(data);
+            System.out.println(row);
         }
         csvReader.close();
+        System.out.println("Total datos: "+datos.size());
         double [][] dy = diferencial5(datos);
         double [][] yt = desintegrar5(datos);
         ShowMatrix(dy);
@@ -115,7 +108,7 @@ public class PronosticoStock extends JFrame{
         System.out.println("RESULTADOS a ->");
         for (String[] val:datos
              ) {
-            System.out.println(val[1]+" Contagios: "+val[5]+" Muertes: "+val[6]+" Recuperados: "+val[7]);
+            System.out.println("Inflacion "+val[0]+" % Mensual: "+val[1]+" Variacion Acumulada: "+val[2]+" % Anual: "+val[3]);
         }
         // Yule Walker
         double[][] matrixA = {{gamma[1][0]-1,gamma[2][0],gamma[3][0],gamma[4][0],0},{gamma[0][0]+gamma[2][0],gamma[3][0]-1,gamma[4][0],0,0}
@@ -136,6 +129,7 @@ public class PronosticoStock extends JFrame{
         double ultimo;
         double [] ywaso = new double[numpron];
         String [] xwaso = new String[numpron];
+        int anio = 2020;
         for(int i = 0;i<numpron;i++){
             double ypron = gammaDeVeras[0][0] * yp[0] + gammaDeVeras[1][0] * yp[1] + gammaDeVeras[2][0] * yp[2]
                     + gammaDeVeras[3][0] * yp[3] + gammaDeVeras[4][0] * yp[4];
@@ -146,8 +140,9 @@ public class PronosticoStock extends JFrame{
             yp[0] = ypron;
             ultimo = y.get(y.size()-1);
             y.add(ultimo+ypron);
-            System.out.println("Pron = "+ypron+" Resultado = " + (ultimo+ypron));
-            fechas.add("Pronosticado"+(i+1));
+            System.out.println("Diferencia con el año anterior = "+ypron+" % inflacion anual "+anio+" = " + (ultimo+ypron));
+            anio++;
+            fechas.add("Pronosticado"+(i+1968));
             ywaso[i] = ultimo+ypron;
             xwaso[i] = String.valueOf(i+1);
         }
@@ -203,14 +198,17 @@ public class PronosticoStock extends JFrame{
         XYSeries series2 = new XYSeries("Pronosticado");
 
         int index = 0;
+        int xIndex = 1968;
         for (int i=0;i<numeros.length;i++){
-            series1.add(i,numeros[i]);
+            series1.add(xIndex,numeros[i]);
             System.out.println(numeros[i]);
             index=i;
+            xIndex++;
         }
-        series2.add(index,numeros[index]);
+        series2.add(xIndex-1,numeros[index]);
         for (int i=0;i<yp.length;i++){
-            series2.add(index+Double.parseDouble(xp[i]),yp[i]);
+            series2.add(xIndex,yp[i]);
+            xIndex++;
         }
 
         dataset.addSeries(series1);
@@ -283,6 +281,7 @@ public class PronosticoStock extends JFrame{
         for (int i = 0;i<stockValue.size()-6;i++)
         {
             yt[i][0] = Double.parseDouble(stockValue.get(index)[colPron]) - Double.parseDouble(stockValue.get(index-1)[colPron]);
+            yt[i][0] = Math.round(yt[i][0] * 100.0) / 100.0;
             index++;
         }
         return yt;
@@ -298,6 +297,11 @@ public class PronosticoStock extends JFrame{
             yt[i][2] = Double.parseDouble(stockValue.get(index-3)[colPron]) - Double.parseDouble(stockValue.get(index-4)[colPron]);
             yt[i][3] = Double.parseDouble(stockValue.get(index-4)[colPron]) - Double.parseDouble(stockValue.get(index-5)[colPron]);
             yt[i][4] = Double.parseDouble(stockValue.get(index-5)[colPron]) - Double.parseDouble(stockValue.get(index-6)[colPron]);
+            yt[i][0] = Math.round(yt[i][0] * 100.0) / 100.0;
+            yt[i][1] = Math.round(yt[i][1] * 100.0) / 100.0;
+            yt[i][2] = Math.round(yt[i][2] * 100.0) / 100.0;
+            yt[i][3] = Math.round(yt[i][3] * 100.0) / 100.0;
+            yt[i][4] = Math.round(yt[i][4] * 100.0) / 100.0;
             index++;
         }
         return yt;
@@ -309,7 +313,7 @@ public class PronosticoStock extends JFrame{
     public static void ShowMatrix(double [][] matrizX){
         for (int i =0;i<matrizX.length;i++){
             for (int j =0;j<matrizX[0].length;j++){
-                System.out.print(matrizX[i][j]+" ");
+                System.out.print("A"+i+" = "+matrizX[i][j]+" \t");
             }
             System.out.println("");
         }
